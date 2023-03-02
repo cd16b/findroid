@@ -1,8 +1,14 @@
 package dev.jdtech.jellyfin
 
+import android.app.PictureInPictureParams
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.graphics.Rect
 import android.media.AudioManager
 import android.os.Bundle
+import android.util.Rational
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
@@ -39,6 +45,12 @@ class PlayerActivity : BasePlayerActivity() {
     override val viewModel: PlayerActivityViewModel by viewModels()
     private val args: PlayerActivityArgs by navArgs()
 
+    private val isPipSupported by lazy {
+        packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    }
+
+    private val sourceRectHint = Rect()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.d("Creating player activity")
@@ -72,10 +84,19 @@ class PlayerActivity : BasePlayerActivity() {
             videoNameTextView.text = title
         }
 
+        binding.playerView.addOnLayoutChangeListener { _: View?, _: Int,
+            _: Int, _: Int, _: Int, _: Int,
+            _:
+                Int,
+            _: Int, _: Int ->
+            binding.playerView.videoSurfaceView?.getGlobalVisibleRect(sourceRectHint)
+        }
+
         val audioButton = binding.playerView.findViewById<ImageButton>(R.id.btn_audio_track)
         val subtitleButton = binding.playerView.findViewById<ImageButton>(R.id.btn_subtitle)
         val speedButton = binding.playerView.findViewById<ImageButton>(R.id.btn_speed)
         val skipIntroButton = binding.playerView.findViewById<Button>(R.id.btn_skip_intro)
+        val pipButton = binding.playerView.findViewById<ImageButton>(R.id.btn_pip)
 
         audioButton.isEnabled = false
         audioButton.imageAlpha = 75
@@ -85,6 +106,13 @@ class PlayerActivity : BasePlayerActivity() {
 
         speedButton.isEnabled = false
         speedButton.imageAlpha = 75
+
+        if (isPipSupported) {
+            pipButton.isEnabled = false
+            pipButton.imageAlpha = 75
+        } else {
+            pipButton.isVisible = false
+        }
 
         audioButton.setOnClickListener {
             when (viewModel.player) {
@@ -161,8 +189,18 @@ class PlayerActivity : BasePlayerActivity() {
             )
         }
 
+        pipButton.setOnClickListener {
+            val startMain = Intent(Intent.ACTION_MAIN)
+            startMain.addCategory(Intent.CATEGORY_HOME)
+            startMain.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            pictureInPicture()
+            startActivity(startMain)
+        }
+
         viewModel.currentIntro.observe(this) {
-            skipIntroButton.isVisible = it != null
+            if (!isInPictureInPictureMode) {
+                skipIntroButton.isVisible = it != null
+            }
         }
 
         skipIntroButton.setOnClickListener {
@@ -192,6 +230,8 @@ class PlayerActivity : BasePlayerActivity() {
                 subtitleButton.imageAlpha = 255
                 speedButton.isEnabled = true
                 speedButton.imageAlpha = 255
+                pipButton.isEnabled = true
+                pipButton.imageAlpha = 255
             }
         }
 
@@ -203,5 +243,40 @@ class PlayerActivity : BasePlayerActivity() {
 
         viewModel.initializePlayer(args.items)
         hideSystemUI()
+    }
+
+    override fun onUserLeaveHint() {
+        if (appPreferences.playerPipGesture && viewModel.player.isPlaying) {
+            pictureInPicture()
+        }
+    }
+
+    private fun pipParams(): PictureInPictureParams {
+        val aspectRatio =
+            binding.playerView.player?.videoSize?.let { Rational(it.width, it.height) }
+
+        return PictureInPictureParams.Builder()
+            .setAspectRatio(aspectRatio)
+            .setSourceRectHint(sourceRectHint)
+            .build()
+    }
+
+    private fun pictureInPicture() {
+        if (!isPipSupported) {
+            return
+        }
+        binding.playerView.useController = false
+        binding.playerView.findViewById<Button>(R.id.btn_skip_intro).isVisible = false
+        enterPictureInPictureMode(pipParams())
+    }
+
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        if (!isInPictureInPictureMode) {
+            binding.playerView.useController = true
+        }
     }
 }
