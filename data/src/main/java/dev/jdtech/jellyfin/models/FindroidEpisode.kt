@@ -26,6 +26,7 @@ data class FindroidEpisode(
     val premiereDate: DateTime?,
     val seriesName: String,
     val seriesId: UUID,
+    val seasonName: String? = null,
     val seasonId: UUID,
     val communityRating: Float?,
     override val unplayedItemCount: Int? = null,
@@ -60,6 +61,7 @@ suspend fun BaseItemDto.toFindroidEpisode(
             premiereDate = premiereDate,
             seriesName = seriesName.orEmpty(),
             seriesId = seriesId!!,
+            seasonName = seasonName,
             seasonId = seasonId!!,
             communityRating = communityRating,
             missing = locationType == LocationType.VIRTUAL,
@@ -89,6 +91,7 @@ fun FindroidEpisodeDto.toFindroidEpisode(database: ServerDatabaseDao, userId: UU
         premiereDate = premiereDate,
         seriesName = seriesName,
         seriesId = seriesId,
+        seasonName = null,
         seasonId = seasonId,
         communityRating = communityRating,
     )
