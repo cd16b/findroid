@@ -318,15 +318,6 @@ class PlayerActivity : BasePlayerActivity() {
         if (!isPipSupported) {
             return
         }
-        binding.playerView.useController = false
-        binding.playerView.findViewById<Button>(R.id.btn_skip_intro).isVisible = false
-
-        playerGestureHelper?.updateZoomMode(false)
-
-        // Brightness mode Auto
-        window.attributes = window.attributes.apply {
-            screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
-        }
 
         try {
             enterPictureInPictureMode(pipParams())
@@ -338,19 +329,32 @@ class PlayerActivity : BasePlayerActivity() {
         newConfig: Configuration,
     ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        if (!isInPictureInPictureMode) {
-            binding.playerView.useController = true
-            playerGestureHelper?.isZoomEnabled?.let { playerGestureHelper!!.updateZoomMode(it) }
+        when (isInPictureInPictureMode) {
+            true -> {
+                binding.playerView.useController = false
+                binding.playerView.findViewById<Button>(R.id.btn_skip_intro).isVisible = false
 
-            // Override auto brightness
-            window.attributes = window.attributes.apply {
-                screenBrightness = if (appPreferences.playerBrightnessRemember) {
-                    appPreferences.playerBrightness
-                } else {
-                    Settings.System.getInt(
-                        contentResolver,
-                        Settings.System.SCREEN_BRIGHTNESS,
-                    ).toFloat() / 255
+                playerGestureHelper?.updateZoomMode(false)
+
+                // Brightness mode Auto
+                window.attributes = window.attributes.apply {
+                    screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+                }
+            }
+            false -> {
+                binding.playerView.useController = true
+                playerGestureHelper?.isZoomEnabled?.let { playerGestureHelper!!.updateZoomMode(it) }
+
+                // Override auto brightness
+                window.attributes = window.attributes.apply {
+                    screenBrightness = if (appPreferences.playerBrightnessRemember) {
+                        appPreferences.playerBrightness
+                    } else {
+                        Settings.System.getInt(
+                            contentResolver,
+                            Settings.System.SCREEN_BRIGHTNESS,
+                        ).toFloat() / 255
+                    }
                 }
             }
         }
