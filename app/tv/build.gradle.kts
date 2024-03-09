@@ -13,7 +13,7 @@ android {
     buildToolsVersion = Versions.buildTools
 
     defaultConfig {
-        applicationId = "dev.jdtech.jellyfin"
+        applicationId = "io.github.jcuhfehl.findroid"
         minSdk = Versions.minSdk
         targetSdk = Versions.targetSdk
 
@@ -82,15 +82,12 @@ ktlint {
 }
 
 dependencies {
-    val composeBom = platform(libs.androidx.compose.bom)
-
-    implementation(projects.core)
-    implementation(projects.data)
-    implementation(projects.preferences)
-    implementation(projects.player.core)
-    implementation(projects.player.video)
+    implementation(project(":core"))
+    implementation(project(":data"))
+    implementation(project(":preferences"))
+    implementation(project(":player:core"))
+    implementation(project(":player:video"))
     implementation(libs.androidx.activity.compose)
-    implementation(composeBom)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.core)
@@ -113,3 +110,4 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
+
