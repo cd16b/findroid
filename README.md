@@ -14,6 +14,7 @@ You can install this app alongside the official release of findroid. You can dow
 - Add season downloads
 - Set sort order for collection view to release date
 - Add mpv settings to enable high quality
+- Fix navigation crashes
 
 # Findroid (upstream)
 
