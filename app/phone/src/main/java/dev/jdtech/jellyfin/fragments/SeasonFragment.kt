@@ -28,6 +28,7 @@ import dev.jdtech.jellyfin.dialogs.getStorageSelectionDialog
 import dev.jdtech.jellyfin.models.FindroidEpisode
 import dev.jdtech.jellyfin.models.UiText
 import dev.jdtech.jellyfin.utils.checkIfLoginRequired
+import dev.jdtech.jellyfin.utils.safeNavigate
 import dev.jdtech.jellyfin.viewmodels.SeasonEvent
 import dev.jdtech.jellyfin.viewmodels.SeasonViewModel
 import kotlinx.coroutines.launch
@@ -222,7 +223,7 @@ class SeasonFragment : Fragment() {
     }
 
     private fun navigateToEpisodeBottomSheetFragment(episode: FindroidEpisode) {
-        findNavController().navigate(
+        findNavController().safeNavigate(
             SeasonFragmentDirections.actionSeasonFragmentToEpisodeBottomSheetFragment(
                 episode.id,
             ),
