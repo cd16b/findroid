@@ -4,6 +4,7 @@ import android.app.DownloadManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.Html.fromHtml
 import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.View
@@ -324,8 +325,8 @@ class MovieFragment : Fragment() {
                     it.displayProfiles.firstOrNull()?.apply {
                         videoProfileChip.text = this.raw
                         videoProfileChip.isVisible = when (this) {
-                            DisplayProfile.HDR,
                             DisplayProfile.HDR10,
+                            DisplayProfile.HDR10_PLUS,
                             DisplayProfile.HLG,
                             -> {
                                 videoProfileChip.chipStartPadding = .0f
@@ -381,7 +382,7 @@ class MovieFragment : Fragment() {
                 binding.info.sizeGroup.isVisible = size != null
             }
 
-            binding.info.description.text = item.overview
+            binding.info.description.text = fromHtml(item.overview, 0)
             binding.info.genres.text = genresString
             binding.info.genresGroup.isVisible = item.genres.isNotEmpty()
             binding.info.director.text = director?.name

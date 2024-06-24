@@ -141,9 +141,9 @@ class PlayerActivity : BasePlayerActivity() {
                                 }
                             }
 
-                            // Trick Play
+                            // Trickplay
                             previewScrubListener?.let {
-                                it.currentTrickPlay = currentTrickPlay
+                                it.currentTrickplay = currentTrickplay
                             }
 
                             // Chapters
@@ -259,7 +259,7 @@ class PlayerActivity : BasePlayerActivity() {
         val timeBar = binding.playerView.findViewById<DefaultTimeBar>(R.id.exo_progress)
         timeBar.setAdMarkerColor(Color.WHITE)
 
-        if (appPreferences.playerTrickPlay) {
+        if (appPreferences.playerTrickplay) {
             val imagePreview = binding.playerView.findViewById<ImageView>(R.id.image_preview)
             previewScrubListener = PreviewScrubListener(
                 imagePreview,
@@ -274,7 +274,7 @@ class PlayerActivity : BasePlayerActivity() {
         hideSystemUI()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
 
@@ -283,6 +283,7 @@ class PlayerActivity : BasePlayerActivity() {
     }
 
     override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
             appPreferences.playerPipGesture &&
             viewModel.player.isPlaying &&
