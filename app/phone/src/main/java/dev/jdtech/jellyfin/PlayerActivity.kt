@@ -253,20 +253,20 @@ class PlayerActivity : BasePlayerActivity() {
         speedButton.isEnabled = false
         speedButton.imageAlpha = 75
 
+        changeQualityButton.isEnabled = false
+        changeQualityButton.imageAlpha = 75
+
+        pipButton.isEnabled = false
+        pipButton.imageAlpha = 75
+
         if (appPreferences.offlineMode) {
-            changeQualityButton.isEnabled = false
-            changeQualityButton.imageAlpha = 75
-        } else {
             val changeQualitySpace =
                 binding.playerView.findViewById<Space>(R.id.space_change_quality)
             changeQualityButton.isVisible = false
             changeQualitySpace.isVisible = false
         }
 
-        if (isPipSupported) {
-            pipButton.isEnabled = false
-            pipButton.imageAlpha = 75
-        } else {
+        if (!isPipSupported) {
             val pipSpace = binding.playerView.findViewById<Space>(R.id.space_pip)
             pipButton.isVisible = false
             pipSpace.isVisible = false

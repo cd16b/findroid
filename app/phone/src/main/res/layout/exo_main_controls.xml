@@ -80,7 +80,7 @@
                 android:background="@drawable/transparent_circle_background"
                 android:contentDescription="@string/player_controls_quality"
                 android:padding="16dp"
-                android:src="@drawable/ic_monitor_play"
+                android:src="@drawable/ic_sliders_horizontal"
                 android:layout_gravity="end"
                 app:tint="@android:color/white"
                 />
