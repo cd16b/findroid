@@ -51,8 +51,8 @@ import dev.jdtech.jellyfin.viewmodels.PlayerEvents
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
-import dev.jdtech.jellyfin.player.video.R as VideoR
 import dev.jdtech.jellyfin.core.R as CoreR
+import dev.jdtech.jellyfin.player.video.R as VideoR
 
 var isControlsLocked: Boolean = false
 
@@ -103,10 +103,6 @@ class PlayerActivity : BasePlayerActivity() {
 
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val changeQualityButton: ImageButton = findViewById(R.id.btnChangeQuality)
-        changeQualityButton.setOnClickListener {
-            showQualitySelectionDialog()
-        }
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         binding.playerView.player = viewModel.player
@@ -149,6 +145,8 @@ class PlayerActivity : BasePlayerActivity() {
         val pipButton = binding.playerView.findViewById<ImageButton>(R.id.btn_pip)
         val lockButton = binding.playerView.findViewById<ImageButton>(R.id.btn_lockview)
         val unlockButton = binding.playerView.findViewById<ImageButton>(R.id.btn_unlock)
+        val changeQualityButton =
+            binding.playerView.findViewById<ImageButton>(R.id.btn_change_quality)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -215,6 +213,8 @@ class PlayerActivity : BasePlayerActivity() {
                                 speedButton.imageAlpha = 255
                                 pipButton.isEnabled = true
                                 pipButton.imageAlpha = 255
+                                changeQualityButton.isEnabled = true
+                                changeQualityButton.imageAlpha = 255
                             }
                         }
                     }
@@ -248,6 +248,16 @@ class PlayerActivity : BasePlayerActivity() {
 
         speedButton.isEnabled = false
         speedButton.imageAlpha = 75
+
+        if (appPreferences.offlineMode) {
+            changeQualityButton.isEnabled = false
+            changeQualityButton.imageAlpha = 75
+        } else {
+            val changeQualitySpace =
+                binding.playerView.findViewById<Space>(R.id.space_change_quality)
+            changeQualityButton.isVisible = false
+            changeQualitySpace.isVisible = false
+        }
 
         if (isPipSupported) {
             pipButton.isEnabled = false
@@ -298,6 +308,10 @@ class PlayerActivity : BasePlayerActivity() {
 
         pipButton.setOnClickListener {
             pictureInPicture()
+        }
+
+        changeQualityButton.setOnClickListener {
+            showQualitySelectionDialog()
         }
 
         // Set marker color
@@ -395,7 +409,7 @@ class PlayerActivity : BasePlayerActivity() {
         } catch (_: IllegalArgumentException) { }
     }
 
-    private var selectedIndex = 1  // Default to "Original" (index 1)
+    private var selectedIndex = 1 // Default to "Original" (index 1)
     private fun showQualitySelectionDialog() {
         val originalResolution = viewModel.getOriginalResolution() ?: 0
         val qualityEntries = resources.getStringArray(CoreR.array.quality_entries).toList()
@@ -404,10 +418,10 @@ class PlayerActivity : BasePlayerActivity() {
         val qualities = qualityEntries.toMutableList()
         val closestQuality = VideoQuality.entries
             .filter { it != VideoQuality.Auto && it != VideoQuality.Original }
-            .minByOrNull { kotlin.math.abs(it.height*it.width - originalResolution) }
+            .minByOrNull { kotlin.math.abs(it.height * it.width - originalResolution) }
 
         if (closestQuality != null) {
-            qualities[1] = "${qualities[1]} (${closestQuality})"
+            qualities[1] = "${qualities[1]} ($closestQuality)"
         }
         MaterialAlertDialogBuilder(this)
             .setTitle(CoreR.string.select_quality)

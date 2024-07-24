@@ -75,7 +75,7 @@
 
             <!--TODO: Content Desc to Strings-->
             <ImageButton
-                android:id="@+id/btnChangeQuality"
+                android:id="@+id/btn_change_quality"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:background="@drawable/transparent_circle_background"
@@ -87,6 +87,7 @@
                 />
 
             <Space
+                android:id="@+id/space_change_quality"
                 android:layout_width="16dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />

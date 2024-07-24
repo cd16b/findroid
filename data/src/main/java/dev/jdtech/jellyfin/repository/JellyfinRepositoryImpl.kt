@@ -172,11 +172,11 @@ class JellyfinRepositoryImpl(
     ): Flow<PagingData<FindroidItem>> =
         Pager(
             config =
-                PagingConfig(
-                    pageSize = 10,
-                    maxSize = 100,
-                    enablePlaceholders = false,
-                ),
+            PagingConfig(
+                pageSize = 10,
+                maxSize = 100,
+                enablePlaceholders = false,
+            ),
             pagingSourceFactory = {
                 ItemsPagingSource(
                     this,
@@ -215,11 +215,11 @@ class JellyfinRepositoryImpl(
                     jellyfinApi.userId!!,
                     filters = listOf(ItemFilter.IS_FAVORITE),
                     includeItemTypes =
-                        listOf(
-                            BaseItemKind.MOVIE,
-                            BaseItemKind.SERIES,
-                            BaseItemKind.EPISODE,
-                        ),
+                    listOf(
+                        BaseItemKind.MOVIE,
+                        BaseItemKind.SERIES,
+                        BaseItemKind.EPISODE,
+                    ),
                     recursive = true,
                 ).content.items
                 .orEmpty()
@@ -233,11 +233,11 @@ class JellyfinRepositoryImpl(
                     jellyfinApi.userId!!,
                     searchTerm = searchQuery,
                     includeItemTypes =
-                        listOf(
-                            BaseItemKind.MOVIE,
-                            BaseItemKind.SERIES,
-                            BaseItemKind.EPISODE,
-                        ),
+                    listOf(
+                        BaseItemKind.MOVIE,
+                        BaseItemKind.SERIES,
+                        BaseItemKind.EPISODE,
+                    ),
                     recursive = true,
                 ).content.items
                 .orEmpty()
@@ -343,24 +343,24 @@ class JellyfinRepositoryImpl(
                         PlaybackInfoDto(
                             userId = jellyfinApi.userId!!,
                             deviceProfile =
-                                DeviceProfile(
-                                    name = "Direct play all",
-                                    maxStaticBitrate = 1_000_000_000,
-                                    maxStreamingBitrate = 1_000_000_000,
-                                    codecProfiles = emptyList(),
-                                    containerProfiles = emptyList(),
-                                    directPlayProfiles =
-                                        listOf(
-                                            DirectPlayProfile(type = DlnaProfileType.VIDEO),
-                                            DirectPlayProfile(type = DlnaProfileType.AUDIO),
-                                        ),
-                                    transcodingProfiles = emptyList(),
-                                    subtitleProfiles =
-                                        listOf(
-                                            SubtitleProfile("srt", SubtitleDeliveryMethod.EXTERNAL),
-                                            SubtitleProfile("ass", SubtitleDeliveryMethod.EXTERNAL),
-                                        ),
+                            DeviceProfile(
+                                name = "Direct play all",
+                                maxStaticBitrate = 1_000_000_000,
+                                maxStreamingBitrate = 1_000_000_000,
+                                codecProfiles = emptyList(),
+                                containerProfiles = emptyList(),
+                                directPlayProfiles =
+                                listOf(
+                                    DirectPlayProfile(type = DlnaProfileType.VIDEO),
+                                    DirectPlayProfile(type = DlnaProfileType.AUDIO),
                                 ),
+                                transcodingProfiles = emptyList(),
+                                subtitleProfiles =
+                                listOf(
+                                    SubtitleProfile("srt", SubtitleDeliveryMethod.EXTERNAL),
+                                    SubtitleProfile("ass", SubtitleDeliveryMethod.EXTERNAL),
+                                ),
+                            ),
                             maxStreamingBitrate = 1_000_000_000,
                         ),
                     ).content.mediaSources
@@ -459,21 +459,21 @@ class JellyfinRepositoryImpl(
             jellyfinApi.sessionApi.postCapabilities(
                 playableMediaTypes = listOf(MediaType.VIDEO),
                 supportedCommands =
-                    listOf(
-                        GeneralCommandType.VOLUME_UP,
-                        GeneralCommandType.VOLUME_DOWN,
-                        GeneralCommandType.TOGGLE_MUTE,
-                        GeneralCommandType.SET_AUDIO_STREAM_INDEX,
-                        GeneralCommandType.SET_SUBTITLE_STREAM_INDEX,
-                        GeneralCommandType.MUTE,
-                        GeneralCommandType.UNMUTE,
-                        GeneralCommandType.SET_VOLUME,
-                        GeneralCommandType.DISPLAY_MESSAGE,
-                        GeneralCommandType.PLAY,
-                        GeneralCommandType.PLAY_STATE,
-                        GeneralCommandType.PLAY_NEXT,
-                        GeneralCommandType.PLAY_MEDIA_SOURCE,
-                    ),
+                listOf(
+                    GeneralCommandType.VOLUME_UP,
+                    GeneralCommandType.VOLUME_DOWN,
+                    GeneralCommandType.TOGGLE_MUTE,
+                    GeneralCommandType.SET_AUDIO_STREAM_INDEX,
+                    GeneralCommandType.SET_SUBTITLE_STREAM_INDEX,
+                    GeneralCommandType.MUTE,
+                    GeneralCommandType.UNMUTE,
+                    GeneralCommandType.SET_VOLUME,
+                    GeneralCommandType.DISPLAY_MESSAGE,
+                    GeneralCommandType.PLAY,
+                    GeneralCommandType.PLAY_STATE,
+                    GeneralCommandType.PLAY_NEXT,
+                    GeneralCommandType.PLAY_MEDIA_SOURCE,
+                ),
                 supportsMediaControl = true,
             )
         }
@@ -632,53 +632,53 @@ class JellyfinRepositoryImpl(
                 supportsMediaControl = true,
                 supportsPersistentIdentifier = true,
                 deviceProfile =
-                    DeviceProfile(
-                        name = "FindroidUser",
-                        id = getUserId().toString(),
-                        maxStaticBitrate = maxBitrate,
-                        maxStreamingBitrate = maxBitrate,
-                        codecProfiles = emptyList(),
-                        containerProfiles = listOf(),
-                        directPlayProfiles =
+                DeviceProfile(
+                    name = "FindroidUser",
+                    id = getUserId().toString(),
+                    maxStaticBitrate = maxBitrate,
+                    maxStreamingBitrate = maxBitrate,
+                    codecProfiles = emptyList(),
+                    containerProfiles = listOf(),
+                    directPlayProfiles =
+                    listOf(
+                        DirectPlayProfile(type = DlnaProfileType.VIDEO),
+                        DirectPlayProfile(type = DlnaProfileType.AUDIO),
+                    ),
+                    transcodingProfiles =
+                    listOf(
+                        TranscodingProfile(
+                            container = container,
+                            context = context,
+                            protocol = MediaStreamProtocol.HLS,
+                            audioCodec = "aac",
+                            videoCodec = appPreferences.transcodeCodec!!,
+                            type = DlnaProfileType.VIDEO,
+                            conditions =
                             listOf(
-                                DirectPlayProfile(type = DlnaProfileType.VIDEO),
-                                DirectPlayProfile(type = DlnaProfileType.AUDIO),
-                            ),
-                        transcodingProfiles =
-                            listOf(
-                                TranscodingProfile(
-                                    container = container,
-                                    context = context,
-                                    protocol = MediaStreamProtocol.HLS,
-                                    audioCodec = "aac",
-                                    videoCodec = appPreferences.transcodeCodec!!,
-                                    type = DlnaProfileType.VIDEO,
-                                    conditions =
-                                        listOf(
-                                            ProfileCondition(
-                                                condition = ProfileConditionType.LESS_THAN_EQUAL,
-                                                property = ProfileConditionValue.VIDEO_BITRATE,
-                                                value = "8000000",
-                                                isRequired = true,
-                                            ),
-                                        ),
-                                    copyTimestamps = true,
-                                    enableSubtitlesInManifest = true,
-                                    transcodeSeekInfo = TranscodeSeekInfo.AUTO,
+                                ProfileCondition(
+                                    condition = ProfileConditionType.LESS_THAN_EQUAL,
+                                    property = ProfileConditionValue.VIDEO_BITRATE,
+                                    value = "8000000",
+                                    isRequired = true,
                                 ),
                             ),
-                        subtitleProfiles =
-                            listOf(
-                                SubtitleProfile("srt", SubtitleDeliveryMethod.EXTERNAL),
-                                SubtitleProfile("ass", SubtitleDeliveryMethod.EXTERNAL),
-                                SubtitleProfile("sub", SubtitleDeliveryMethod.EXTERNAL),
-                                SubtitleProfile("vtt", SubtitleDeliveryMethod.EXTERNAL),
-                                SubtitleProfile("ssa", SubtitleDeliveryMethod.EXTERNAL),
-                                SubtitleProfile("pgs", SubtitleDeliveryMethod.EXTERNAL),
-                                SubtitleProfile("dvb_teletext", SubtitleDeliveryMethod.EXTERNAL),
-                                SubtitleProfile("dvd_subtitle", SubtitleDeliveryMethod.EXTERNAL),
-                            ),
+                            copyTimestamps = true,
+                            enableSubtitlesInManifest = true,
+                            transcodeSeekInfo = TranscodeSeekInfo.AUTO,
+                        ),
                     ),
+                    subtitleProfiles =
+                    listOf(
+                        SubtitleProfile("srt", SubtitleDeliveryMethod.EXTERNAL),
+                        SubtitleProfile("ass", SubtitleDeliveryMethod.EXTERNAL),
+                        SubtitleProfile("sub", SubtitleDeliveryMethod.EXTERNAL),
+                        SubtitleProfile("vtt", SubtitleDeliveryMethod.EXTERNAL),
+                        SubtitleProfile("ssa", SubtitleDeliveryMethod.EXTERNAL),
+                        SubtitleProfile("pgs", SubtitleDeliveryMethod.EXTERNAL),
+                        SubtitleProfile("dvb_teletext", SubtitleDeliveryMethod.EXTERNAL),
+                        SubtitleProfile("dvd_subtitle", SubtitleDeliveryMethod.EXTERNAL),
+                    ),
+                ),
             )
         return deviceProfile.deviceProfile!!
     }

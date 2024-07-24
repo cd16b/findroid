@@ -3,7 +3,6 @@ package dev.jdtech.jellyfin.viewmodels
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.media3.common.MimeTypes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.models.ExternalSubtitle
 import dev.jdtech.jellyfin.models.FindroidChapter
@@ -127,7 +126,6 @@ class PlayerViewModel @Inject internal constructor(
             .map { episode -> episode.toPlayerItem(mediaSourceIndex, playbackPosition) }
     }
 
-
     private suspend fun FindroidItem.toPlayerItem(
         mediaSourceIndex: Int?,
         playbackPosition: Long,
@@ -139,7 +137,7 @@ class PlayerViewModel @Inject internal constructor(
             mediaSources[mediaSourceIndex]
         }
         // Embedded Sub externally for offline playback
-        val externalSubtitles = if (mediaSource.type.toString() == "LOCAL" ) {
+        val externalSubtitles = if (mediaSource.type.toString() == "LOCAL") {
             mediaSource.mediaStreams
                 .filter { mediaStream ->
                     mediaStream.type == MediaStreamType.SUBTITLE && !mediaStream.path.isNullOrBlank()
@@ -152,19 +150,19 @@ class PlayerViewModel @Inject internal constructor(
                         setSubtitlesMimeTypes(mediaStream.codec),
                     )
                 }
-        }else {
-          mediaSource.mediaStreams
-            .filter { mediaStream ->
-                mediaStream.isExternal && mediaStream.type == MediaStreamType.SUBTITLE && !mediaStream.path.isNullOrBlank()
-            }
-            .map { mediaStream ->
-                ExternalSubtitle(
-                    mediaStream.title,
-                    mediaStream.language,
-                    Uri.parse(mediaStream.path!!),
-                    setSubtitlesMimeTypes(mediaStream.codec)
-                )
-            }
+        } else {
+            mediaSource.mediaStreams
+                .filter { mediaStream ->
+                    mediaStream.isExternal && mediaStream.type == MediaStreamType.SUBTITLE && !mediaStream.path.isNullOrBlank()
+                }
+                .map { mediaStream ->
+                    ExternalSubtitle(
+                        mediaStream.title,
+                        mediaStream.language,
+                        Uri.parse(mediaStream.path!!),
+                        setSubtitlesMimeTypes(mediaStream.codec),
+                    )
+                }
         }
         val trickplayInfo = when (this) {
             is FindroidSources -> {

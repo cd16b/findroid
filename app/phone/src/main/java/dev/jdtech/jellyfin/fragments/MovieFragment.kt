@@ -192,7 +192,7 @@ class MovieFragment : Fragment() {
         }
 
         binding.itemActions.downloadButton.setOnClickListener {
-                handleDownload()
+            handleDownload()
         }
 
         binding.peopleRecyclerView.adapter = PersonListAdapter { person ->
@@ -511,7 +511,6 @@ class MovieFragment : Fragment() {
         val quality = appPreferences.downloadQuality
         val currentQualityIndex = qualityValues.indexOf(quality)
         var selectedQuality = quality
-
 
         val builder = MaterialAlertDialogBuilder(requireContext())
         builder.setTitle("Download Quality")

@@ -169,14 +169,14 @@ class EpisodeBottomSheetFragment : BottomSheetDialogFragment() {
             binding.itemActions.downloadButton.setIconResource(CoreR.drawable.ic_download)
         } else if (viewModel.item.isDownloading()) {
             createCancelDialog()
-        }else if (!appPreferences.downloadQualityDefault) {
+        } else if (!appPreferences.downloadQualityDefault) {
             createPickQualityDialog()
         } else {
             startDownload()
-           }
+        }
     }
 
-    private fun startDownload(){
+    private fun startDownload() {
         binding.itemActions.downloadButton.setIconResource(AndroidR.color.transparent)
         binding.itemActions.progressDownload.isIndeterminate = true
         binding.itemActions.progressDownload.isVisible = true
@@ -418,7 +418,6 @@ class EpisodeBottomSheetFragment : BottomSheetDialogFragment() {
         val quality = appPreferences.downloadQuality
         val currentQualityIndex = qualityValues.indexOf(quality)
         var selectedQuality = quality
-
 
         val builder = MaterialAlertDialogBuilder(requireContext())
         builder.setTitle("Download Quality")

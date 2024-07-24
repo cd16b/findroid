@@ -130,7 +130,8 @@ constructor(
 
     var downloadQuality get() = sharedPreferences.getString(
         Constants.PREF_DOWNLOADS_QUALITY,
-        "Original")
+        "Original",
+    )
         set(value) {
             sharedPreferences.edit().putString(Constants.PREF_DOWNLOADS_QUALITY, value).apply()
         }
@@ -138,8 +139,7 @@ constructor(
     val downloadQualityDefault get() = sharedPreferences.getBoolean(
         Constants.PREF_DOWNLOADS_QUALITY_DEFAULT,
         false,
-        )
-
+    )
 
     // Sorting
     var sortBy: String

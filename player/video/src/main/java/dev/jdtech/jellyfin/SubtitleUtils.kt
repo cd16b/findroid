@@ -2,7 +2,7 @@ package dev.jdtech.jellyfin
 
 import androidx.media3.common.MimeTypes
 
-public fun setSubtitlesMimeTypes(codec: String): String {
+fun setSubtitlesMimeTypes(codec: String): String {
     return when (codec) {
         "subrip" -> MimeTypes.APPLICATION_SUBRIP
         "webvtt" -> MimeTypes.TEXT_VTT
