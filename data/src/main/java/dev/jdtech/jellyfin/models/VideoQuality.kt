@@ -12,7 +12,7 @@ enum class VideoQuality(
         12000000,
         3840,
         2160,
-        false
+        false,
     ), // Here for future proofing and to calculate original resolution only
     P1080(8000000, 1080, 1920, false),
     P720(3000000, 720, 1280, false),

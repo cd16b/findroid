@@ -502,7 +502,7 @@ constructor(
                     currentItem.itemId,
                     true,
                     deviceProfile,
-                    VideoQuality.getBitrate(videoQuality)
+                    VideoQuality.getBitrate(videoQuality),
                 )
                 val playSessionId = playbackInfo.content.playSessionId
                 if (playSessionId != null) {
@@ -553,7 +553,7 @@ constructor(
                         deviceId,
                         mediaSourceId,
                         playSessionId!!,
-                        VideoQuality.getBitrate(videoQuality)
+                        VideoQuality.getBitrate(videoQuality),
                     )
                     val uriBuilder = url.toUri().buildUpon()
                     val apiKey = jellyfinRepository.getAccessToken()
