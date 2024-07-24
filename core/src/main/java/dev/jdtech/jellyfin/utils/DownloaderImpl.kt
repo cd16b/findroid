@@ -21,16 +21,17 @@ import dev.jdtech.jellyfin.models.toFindroidEpisodeDto
 import dev.jdtech.jellyfin.models.toFindroidMediaStreamDto
 import dev.jdtech.jellyfin.models.toFindroidMovieDto
 import dev.jdtech.jellyfin.models.toFindroidSeasonDto
+import dev.jdtech.jellyfin.models.toFindroidSegmentsDto
 import dev.jdtech.jellyfin.models.toFindroidShowDto
 import dev.jdtech.jellyfin.models.toFindroidSourceDto
 import dev.jdtech.jellyfin.models.toFindroidTrickplayInfoDto
 import dev.jdtech.jellyfin.models.toFindroidUserDataDto
-import dev.jdtech.jellyfin.models.toIntroDto
 import dev.jdtech.jellyfin.repository.JellyfinRepository
 import org.jellyfin.sdk.model.api.EncodingContext
 import org.jellyfin.sdk.model.api.MediaStreamType
 import java.io.File
 import java.util.UUID
+import kotlin.Exception
 import kotlin.math.ceil
 import dev.jdtech.jellyfin.core.R as CoreR
 
@@ -48,15 +49,13 @@ class DownloaderImpl(
         storageIndex: Int,
     ): Pair<Long, UiText?> {
         try {
-            val source =
-                jellyfinRepository.getMediaSources(item.id, true).first { it.id == sourceId }
-            val intro = jellyfinRepository.getIntroTimestamps(item.id)
-            val trickplayInfo =
-                if (item is FindroidSources) {
-                    item.trickplayInfo?.get(sourceId)
-                } else {
-                    null
-                }
+            val source = jellyfinRepository.getMediaSources(item.id, true).first { it.id == sourceId }
+            val segments = jellyfinRepository.getSegments(item.id)
+            val trickplayInfo = if (item is FindroidSources) {
+                item.trickplayInfo?.get(sourceId)
+            } else {
+                null
+            }
             val storageLocation = context.getExternalFilesDirs(null)[storageIndex]
             if (storageLocation == null || Environment.getExternalStorageState(storageLocation) != Environment.MEDIA_MOUNTED) {
                 return Pair(-1, UiText.StringResource(CoreR.string.storage_unavailable))
@@ -83,8 +82,8 @@ class DownloaderImpl(
                     if (trickplayInfo != null) {
                         downloadTrickplayData(item.id, sourceId, trickplayInfo)
                     }
-                    if (intro != null) {
-                        database.insertIntro(intro.toIntroDto(item.id))
+                    segments.forEach {
+                        database.insertSegment(it.toFindroidSegmentsDto(item.id))
                     }
                     if (appPreferences.downloadQuality != VideoQuality.Original.toString()) {
                         downloadEmbeddedMediaStreams(item, source, storageIndex)
@@ -132,8 +131,8 @@ class DownloaderImpl(
                     if (trickplayInfo != null) {
                         downloadTrickplayData(item.id, sourceId, trickplayInfo)
                     }
-                    if (intro != null) {
-                        database.insertIntro(intro.toIntroDto(item.id))
+                    segments.forEach {
+                        database.insertSegment(it.toFindroidSegmentsDto(item.id))
                     }
                     if (appPreferences.downloadQuality != "Original") {
                         downloadEmbeddedMediaStreams(item, source, storageIndex)
@@ -204,7 +203,6 @@ class DownloaderImpl(
             is FindroidMovie -> {
                 database.deleteMovie(item.id)
             }
-
             is FindroidEpisode -> {
                 database.deleteEpisode(item.id)
                 val remainingEpisodes = database.getEpisodesBySeasonId(item.seasonId)
@@ -230,8 +228,6 @@ class DownloaderImpl(
         database.deleteMediaStreamsBySourceId(source.id)
 
         database.deleteUserData(item.id)
-
-        database.deleteIntro(item.id)
 
         File(context.filesDir, "trickplay/${item.id}").deleteRecursively()
     }
@@ -264,7 +260,6 @@ class DownloaderImpl(
                         progress = downloadedBytes.times(100).div(totalBytes).toInt()
                     }
                 }
-
                 DownloadManager.STATUS_SUCCESSFUL -> {
                     progress = 100
                 }

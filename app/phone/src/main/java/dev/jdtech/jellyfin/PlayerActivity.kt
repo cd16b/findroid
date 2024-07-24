@@ -1,6 +1,5 @@
 package dev.jdtech.jellyfin
 
-import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.app.PictureInPictureParams
 import android.content.Context
@@ -13,6 +12,8 @@ import android.graphics.Rect
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Process
 import android.provider.Settings
 import android.util.Rational
@@ -22,6 +23,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Space
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -39,6 +41,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.jdtech.jellyfin.databinding.ActivityPlayerBinding
 import dev.jdtech.jellyfin.dialogs.SpeedSelectionDialogFragment
 import dev.jdtech.jellyfin.dialogs.TrackSelectionDialogFragment
+import dev.jdtech.jellyfin.models.FindroidSegment
+import dev.jdtech.jellyfin.models.FindroidSegmentType
 import dev.jdtech.jellyfin.models.VideoQuality
 import dev.jdtech.jellyfin.utils.PlayerGestureHelper
 import dev.jdtech.jellyfin.utils.PreviewScrubListener
@@ -47,6 +51,7 @@ import dev.jdtech.jellyfin.viewmodels.PlayerEvents
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import dev.jdtech.jellyfin.player.video.R as VideoR
 import dev.jdtech.jellyfin.core.R as CoreR
 
 var isControlsLocked: Boolean = false
@@ -62,6 +67,9 @@ class PlayerActivity : BasePlayerActivity() {
     override val viewModel: PlayerActivityViewModel by viewModels()
     private var previewScrubListener: PreviewScrubListener? = null
     private var wasZoom: Boolean = false
+    private var segment: FindroidSegment? = null
+
+    private lateinit var skipSegmentLayout: LinearLayout
 
     private val isPipSupported by lazy {
         // Check if device has PiP feature
@@ -76,6 +84,15 @@ class PlayerActivity : BasePlayerActivity() {
         } else {
             @Suppress("DEPRECATION")
             appOps?.checkOpNoThrow(AppOpsManager.OPSTR_PICTURE_IN_PICTURE, Process.myUid(), packageName) == AppOpsManager.MODE_ALLOWED
+        }
+    }
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var skipButtonTimeoutExpired: Boolean = false
+    private val skipButtonTimeout = Runnable {
+        if (!binding.playerView.isControllerFullyVisible) {
+            skipSegmentLayout.isVisible = false
+            skipButtonTimeoutExpired = true
         }
     }
 
@@ -127,7 +144,8 @@ class PlayerActivity : BasePlayerActivity() {
         val audioButton = binding.playerView.findViewById<ImageButton>(R.id.btn_audio_track)
         val subtitleButton = binding.playerView.findViewById<ImageButton>(R.id.btn_subtitle)
         val speedButton = binding.playerView.findViewById<ImageButton>(R.id.btn_speed)
-        val skipIntroButton = binding.playerView.findViewById<Button>(R.id.btn_skip_intro)
+        skipSegmentLayout = binding.playerView.findViewById(R.id.layout_skip_segment)
+        val skipSegmentButton = binding.playerView.findViewById<Button>(R.id.btn_skip_segment)
         val pipButton = binding.playerView.findViewById<ImageButton>(R.id.btn_pip)
         val lockButton = binding.playerView.findViewById<ImageButton>(R.id.btn_lockview)
         val unlockButton = binding.playerView.findViewById<ImageButton>(R.id.btn_unlock)
@@ -141,12 +159,31 @@ class PlayerActivity : BasePlayerActivity() {
                             // Title
                             videoNameTextView.text = currentItemTitle
 
-                            // Skip Intro button
-                            skipIntroButton.isVisible = !isInPictureInPictureMode && currentIntro != null
-                            skipIntroButton.setOnClickListener {
-                                currentIntro?.let {
-                                    binding.playerView.player?.seekTo((it.introEnd * 1000).toLong())
+                            // Skip Button
+                            segment = currentSegment
+                            if (currentSegment != null) {
+                                // Button text
+                                skipSegmentButton.text = when (currentSegment!!.type) {
+                                    FindroidSegmentType.INTRO -> getString(VideoR.string.player_controls_skip_intro)
+                                    FindroidSegmentType.CREDITS -> getString(VideoR.string.player_controls_skip_credits)
+                                    else -> ""
                                 }
+                                // Buttons visibility
+                                skipSegmentLayout.isVisible = currentSegment?.type != FindroidSegmentType.UNKNOWN && !isInPictureInPictureMode
+                                if (skipSegmentLayout.isVisible) {
+                                    skipButtonTimeoutExpired = false
+                                    handler.postDelayed(skipButtonTimeout, 5000)
+                                }
+                            } else {
+                                skipSegmentLayout.isVisible = false
+                            }
+
+                            // onClick
+                            skipSegmentButton.setOnClickListener {
+                                currentSegment?.let {
+                                    binding.playerView.player?.seekTo((it.endTime * 1000).toLong())
+                                }
+                                skipSegmentLayout.isVisible = false
                             }
 
                             // Trickplay
@@ -278,6 +315,14 @@ class PlayerActivity : BasePlayerActivity() {
             timeBar.addListener(previewScrubListener!!)
         }
 
+        binding.playerView.setControllerVisibilityListener(
+            PlayerView.ControllerVisibilityListener { visibility ->
+                if (segment != null && skipButtonTimeoutExpired) {
+                    skipSegmentLayout.visibility = visibility
+                }
+            },
+        )
+
         viewModel.initializePlayer(args.items)
         hideSystemUI()
     }
@@ -290,7 +335,6 @@ class PlayerActivity : BasePlayerActivity() {
         viewModel.initializePlayer(args.items)
     }
 
-    @SuppressLint("MissingSuperCall")
     override fun onUserLeaveHint() {
         super.onUserLeaveHint()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S &&
@@ -384,7 +428,7 @@ class PlayerActivity : BasePlayerActivity() {
         when (isInPictureInPictureMode) {
             true -> {
                 binding.playerView.useController = false
-                binding.playerView.findViewById<Button>(R.id.btn_skip_intro).isVisible = false
+                skipSegmentLayout.isVisible = false
 
                 wasZoom = playerGestureHelper?.isZoomEnabled ?: false
                 playerGestureHelper?.updateZoomMode(false)
