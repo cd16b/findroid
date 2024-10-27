@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.SystemClock
 import android.provider.Settings
 import android.view.GestureDetector
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
@@ -66,6 +67,8 @@ class PlayerGestureHelper(
 
     private val screenWidth = Resources.getSystem().displayMetrics.widthPixels
     private val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+
+    private val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
 
     var currentTrickplay: Trickplay? = null
     private val trickplayRoundedCorners = RoundedCornersTransformation(10f)
@@ -329,18 +332,10 @@ class PlayerGestureHelper(
                     val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
                     if (swipeGestureValueTrackerVolume == -1f) swipeGestureValueTrackerVolume = currentVolume.toFloat()
 
-                    val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
                     val change = ratioChange * maxVolume
                     swipeGestureValueTrackerVolume = (swipeGestureValueTrackerVolume + change).coerceIn(0f, maxVolume.toFloat())
 
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, swipeGestureValueTrackerVolume.toInt(), 0)
-
-                    activity.binding.gestureVolumeLayout.visibility = View.VISIBLE
-                    activity.binding.gestureVolumeProgressBar.max = maxVolume.times(100)
-                    activity.binding.gestureVolumeProgressBar.progress = swipeGestureValueTrackerVolume.times(100).toInt()
-                    val process = (swipeGestureValueTrackerVolume / maxVolume.toFloat()).times(100).toInt()
-                    activity.binding.gestureVolumeText.text = "$process%"
-                    activity.binding.gestureVolumeImage.setImageLevel(process)
+                    setVolume(swipeGestureValueTrackerVolume)
 
                     swipeGestureVolumeOpen = true
                 } else {
@@ -375,6 +370,43 @@ class PlayerGestureHelper(
             }
         },
     )
+
+    fun volumeUp() {
+        val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        val newVolume = (currentVolume.toFloat() + maxVolume / 10f).coerceIn(0f, maxVolume.toFloat())
+
+        setVolume(newVolume)
+        activity.binding.gestureVolumeLayout.apply {
+            if (visibility == View.VISIBLE) {
+                removeCallbacks(hideGestureVolumeIndicatorOverlayAction)
+                postDelayed(hideGestureVolumeIndicatorOverlayAction, 1000)
+            }
+        }
+    }
+
+    fun volumeDown() {
+        val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        val newVolume = (currentVolume.toFloat() - maxVolume / 10f).coerceIn(0f, maxVolume.toFloat())
+
+        setVolume(newVolume)
+        activity.binding.gestureVolumeLayout.apply {
+            if (visibility == View.VISIBLE) {
+                removeCallbacks(hideGestureVolumeIndicatorOverlayAction)
+                postDelayed(hideGestureVolumeIndicatorOverlayAction, 1000)
+            }
+        }
+    }
+
+    private fun setVolume(volume: Float) {
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume.toInt(), 0)
+
+        activity.binding.gestureVolumeLayout.visibility = View.VISIBLE
+        activity.binding.gestureVolumeProgressBar.max = maxVolume.times(100).toInt()
+        activity.binding.gestureVolumeProgressBar.progress = volume.times(100).toInt()
+        val process = (volume / maxVolume).times(100).toInt()
+        activity.binding.gestureVolumeText.text = "$process%"
+        activity.binding.gestureVolumeImage.setImageLevel(process)
+    }
 
     private val hideGestureVolumeIndicatorOverlayAction = Runnable {
         activity.binding.gestureVolumeLayout.visibility = View.GONE

@@ -16,6 +16,7 @@ import android.os.Looper
 import android.os.Process
 import android.provider.Settings
 import android.util.Rational
+import android.view.KeyEvent
 import android.view.SurfaceView
 import android.view.View
 import android.view.WindowManager
@@ -430,5 +431,25 @@ class PlayerActivity : BasePlayerActivity() {
                 }
             }
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == KeyEvent.KEYCODE_BUTTON_B)
+            return super.onKeyDown(keyCode, event)
+        if (!appPreferences.playerGestures || !appPreferences.playerGesturesVB)
+            return super.onKeyDown(keyCode, event)
+
+        when (keyCode) {
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                playerGestureHelper?.volumeDown()
+                return true
+            }
+
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                playerGestureHelper?.volumeUp()
+                return true
+            }
+        }
+        return super.onKeyDown(keyCode, event)
     }
 }
