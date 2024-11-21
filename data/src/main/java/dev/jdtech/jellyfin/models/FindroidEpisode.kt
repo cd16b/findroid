@@ -33,6 +33,7 @@ data class FindroidEpisode(
     override val images: FindroidImages,
     override val chapters: List<FindroidChapter>?,
     override val trickplayInfo: Map<String, FindroidTrickplayInfo>?,
+    override val segments: List<FindroidSegment>?,
 ) : FindroidItem, FindroidSources
 
 suspend fun BaseItemDto.toFindroidEpisode(
@@ -69,6 +70,7 @@ suspend fun BaseItemDto.toFindroidEpisode(
             images = toFindroidImages(jellyfinRepository),
             chapters = toFindroidChapters(),
             trickplayInfo = trickplay?.mapValues { it.value[it.value.keys.max()]!!.toFindroidTrickplayInfo() },
+            segments = jellyfinRepository.getSegments(id),
         )
     } catch (_: NullPointerException) {
         null
@@ -107,5 +109,6 @@ fun FindroidEpisodeDto.toFindroidEpisode(database: ServerDatabaseDao, userId: UU
         images = FindroidImages(),
         chapters = chapters,
         trickplayInfo = trickplayInfos,
+        segments = segments,
     )
 }

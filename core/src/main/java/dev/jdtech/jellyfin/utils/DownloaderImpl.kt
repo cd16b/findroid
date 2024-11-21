@@ -20,7 +20,6 @@ import dev.jdtech.jellyfin.models.toFindroidEpisodeDto
 import dev.jdtech.jellyfin.models.toFindroidMediaStreamDto
 import dev.jdtech.jellyfin.models.toFindroidMovieDto
 import dev.jdtech.jellyfin.models.toFindroidSeasonDto
-import dev.jdtech.jellyfin.models.toFindroidSegmentsDto
 import dev.jdtech.jellyfin.models.toFindroidShowDto
 import dev.jdtech.jellyfin.models.toFindroidSourceDto
 import dev.jdtech.jellyfin.models.toFindroidTrickplayInfoDto
@@ -47,7 +46,6 @@ class DownloaderImpl(
     ): Pair<Long, UiText?> {
         try {
             val source = jellyfinRepository.getMediaSources(item.id, true).first { it.id == sourceId }
-            val segments = jellyfinRepository.getSegments(item.id)
             val trickplayInfo = if (item is FindroidSources) {
                 item.trickplayInfo?.get(sourceId)
             } else {
@@ -79,9 +77,6 @@ class DownloaderImpl(
                     if (trickplayInfo != null) {
                         downloadTrickplayData(item.id, sourceId, trickplayInfo)
                     }
-                    segments.forEach {
-                        database.insertSegment(it.toFindroidSegmentsDto(item.id))
-                    }
                     val request = DownloadManager.Request(source.path.toUri())
                         .setTitle(item.name)
                         .setAllowedOverMetered(appPreferences.downloadOverMobileData)
@@ -107,9 +102,6 @@ class DownloaderImpl(
                     downloadExternalMediaStreams(item, source, storageIndex)
                     if (trickplayInfo != null) {
                         downloadTrickplayData(item.id, sourceId, trickplayInfo)
-                    }
-                    segments.forEach {
-                        database.insertSegment(it.toFindroidSegmentsDto(item.id))
                     }
                     val request = DownloadManager.Request(source.path.toUri())
                         .setTitle(item.name)

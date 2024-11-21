@@ -20,6 +20,7 @@ data class FindroidCollection(
     val type: CollectionType,
     override val images: FindroidImages,
     override val chapters: List<FindroidChapter>? = null,
+    override val segments: List<FindroidSegment>? = null,
 ) : FindroidItem
 
 fun BaseItemDto.toFindroidCollection(
