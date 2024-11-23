@@ -183,7 +183,7 @@ class PlayerViewModel @Inject internal constructor(
             externalSubtitles = externalSubtitles,
             chapters = chapters.toPlayerChapters(),
             trickplayInfo = trickplayInfo,
-            segments = segments.toPlayerSegments(),
+            segments = repository.getSegments(id).toPlayerSegments(),
         )
     }
 

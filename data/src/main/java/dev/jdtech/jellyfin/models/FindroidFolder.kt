@@ -19,7 +19,6 @@ data class FindroidFolder(
     override val unplayedItemCount: Int?,
     override val images: FindroidImages,
     override val chapters: List<FindroidChapter>? = null,
-    override val segments: List<FindroidSegment>? = null,
 ) : FindroidItem
 
 fun BaseItemDto.toFindroidFolder(

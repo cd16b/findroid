@@ -323,12 +323,19 @@ class JellyfinRepositoryImpl(
 
     override suspend fun getSegments(itemId: UUID): List<FindroidSegment> =
         withContext(Dispatchers.IO) {
+            val databaseSegments = database.getSegments(itemId).map { it.toFindroidSegment() }
+
+            if (databaseSegments.isNotEmpty()) {
+                return@withContext databaseSegments
+            }
+
             try {
-                val segments = jellyfinApi.mediaSegmentsApi.getItemSegments(itemId).content.items.map { it.toFindroidSegment() }
+                val apiSegments =
+                    jellyfinApi.mediaSegmentsApi.getItemSegments(itemId).content.items.map { it.toFindroidSegment() }
 
-                Timber.tag("SegmentInfo").d("segments: %s", segments)
+                Timber.tag("SegmentInfo").d("segments: %s", apiSegments)
 
-                return@withContext segments
+                return@withContext apiSegments
             } catch (e: Exception) {
                 Timber.e(e)
                 return@withContext emptyList()

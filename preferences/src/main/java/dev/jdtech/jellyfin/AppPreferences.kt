@@ -85,13 +85,13 @@ constructor(
 
     // Player - Media Segments
     val playerMediaSegmentsSkipButton get() = sharedPreferences.getBoolean(Constants.PREF_PLAYER_MEDIA_SEGMENTS_SKIP_BUTTON, true)
-    val playerMediaSegmentsSkipButtonType get() = sharedPreferences.getStringSet(Constants.PREF_PLAYER_MEDIA_SEGMENTS_SKIP_BUTTON_TYPE, emptySet())
+    val playerMediaSegmentsSkipButtonType get() = sharedPreferences.getStringSet(Constants.PREF_PLAYER_MEDIA_SEGMENTS_SKIP_BUTTON_TYPE, setOf("INTRO", "OUTRO"))
     val playerMediaSegmentsSkipButtonDuration get() = sharedPreferences.getString(
         Constants.PREF_PLAYER_MEDIA_SEGMENTS_SKIP_BUTTON_DURATION,
         Constants.DEFAULT_PLAYER_MEDIA_SEGMENTS_SKIP_BUTTON_DURATION.toString(),
     )!!.toLongOrNull() ?: Constants.DEFAULT_PLAYER_MEDIA_SEGMENTS_SKIP_BUTTON_DURATION
     val playerMediaSegmentsAutoSkip get() = sharedPreferences.getString(Constants.PREF_PLAYER_MEDIA_SEGMENTS_AUTO_SKIP, PlayerMediaSegmentsAutoSkip.NEVER)!!
-    val playerMediaSegmentsAutoSkipType get() = sharedPreferences.getStringSet(Constants.PREF_PLAYER_MEDIA_SEGMENTS_AUTO_SKIP_TYPE, emptySet())
+    val playerMediaSegmentsAutoSkipType get() = sharedPreferences.getStringSet(Constants.PREF_PLAYER_MEDIA_SEGMENTS_AUTO_SKIP_TYPE, setOf("INTRO", "OUTRO"))
     val playerMediaSegmentsNextEpisodeThreshold get() = sharedPreferences.getString(
         Constants.PREF_PLAYER_MEDIA_SEGMENTS_NEXT_EPISODE_THRESHOLD,
         Constants.DEFAULT_PLAYER_MEDIA_SEGMENTS_NEXT_EPISODE_THRESHOLD.toString(),

@@ -21,7 +21,6 @@ data class FindroidMovieDto(
     val productionYear: Int?,
     val endDate: LocalDateTime?,
     val chapters: List<FindroidChapter>?,
-    val segments: List<FindroidSegment>?,
 )
 
 fun FindroidMovie.toFindroidMovieDto(serverId: String? = null): FindroidMovieDto {
@@ -39,6 +38,5 @@ fun FindroidMovie.toFindroidMovieDto(serverId: String? = null): FindroidMovieDto
         productionYear = productionYear,
         endDate = endDate,
         chapters = chapters,
-        segments = segments,
     )
 }

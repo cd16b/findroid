@@ -10,6 +10,7 @@ import dev.jdtech.jellyfin.models.FindroidEpisodeDto
 import dev.jdtech.jellyfin.models.FindroidMediaStreamDto
 import dev.jdtech.jellyfin.models.FindroidMovieDto
 import dev.jdtech.jellyfin.models.FindroidSeasonDto
+import dev.jdtech.jellyfin.models.FindroidSegmentDto
 import dev.jdtech.jellyfin.models.FindroidShowDto
 import dev.jdtech.jellyfin.models.FindroidSourceDto
 import dev.jdtech.jellyfin.models.FindroidTrickplayInfoDto
@@ -19,14 +20,13 @@ import dev.jdtech.jellyfin.models.ServerAddress
 import dev.jdtech.jellyfin.models.User
 
 @Database(
-    entities = [Server::class, ServerAddress::class, User::class, FindroidMovieDto::class, FindroidShowDto::class, FindroidSeasonDto::class, FindroidEpisodeDto::class, FindroidSourceDto::class, FindroidMediaStreamDto::class, FindroidUserDataDto::class, FindroidTrickplayInfoDto::class],
-    version = 7,
+    entities = [Server::class, ServerAddress::class, User::class, FindroidMovieDto::class, FindroidShowDto::class, FindroidSeasonDto::class, FindroidEpisodeDto::class, FindroidSourceDto::class, FindroidMediaStreamDto::class, FindroidUserDataDto::class, FindroidTrickplayInfoDto::class, FindroidSegmentDto::class],
+    version = 6,
     autoMigrations = [
         AutoMigration(from = 2, to = 3),
         AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5, spec = ServerDatabase.TrickplayMigration::class),
         AutoMigration(from = 5, to = 6, spec = ServerDatabase.IntrosMigration::class),
-        AutoMigration(from = 6, to = 7, spec = ServerDatabase.SegmentsMigration::class),
     ],
 )
 @TypeConverters(Converters::class)
@@ -38,7 +38,4 @@ abstract class ServerDatabase : RoomDatabase() {
 
     @DeleteTable(tableName = "intros")
     class IntrosMigration : AutoMigrationSpec
-
-    @DeleteTable(tableName = "segments")
-    class SegmentsMigration : AutoMigrationSpec
 }
