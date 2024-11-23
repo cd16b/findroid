@@ -20,6 +20,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dev.jdtech.jellyfin.AppPreferences
+import dev.jdtech.jellyfin.Constants.PlayerMediaSegmentsAutoSkip
 import dev.jdtech.jellyfin.models.FindroidSegmentType
 import dev.jdtech.jellyfin.models.PlayerChapter
 import dev.jdtech.jellyfin.models.PlayerItem
@@ -242,7 +243,7 @@ constructor(
                 handler.postDelayed(this, 1000L)
             }
         }
-        if (appPreferences.playerMediaSegmentsSkipButton || appPreferences.playerMediaSegmentsAutoSkip != "never") {
+        if (appPreferences.playerMediaSegmentsSkipButton || appPreferences.playerMediaSegmentsAutoSkip != PlayerMediaSegmentsAutoSkip.NEVER) {
             handler.post(segmentCheckRunnable)
         }
         handler.post(playbackProgressRunnable)
@@ -389,7 +390,7 @@ constructor(
     }
 
     private fun updateCurrentSegment() {
-        if (currentMediaItemSegments?.isEmpty() == true) {
+        if (currentMediaItemSegments.isNullOrEmpty()) {
             return
         }
         val milliSeconds = player.currentPosition
